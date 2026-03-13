@@ -71,10 +71,6 @@ http://localhost:3000/listing
 - `views/` – EJS templates + layout + partials
 - `public/` – static assets (CSS)
 
-## Notes
-
-- `node_modules/` is ignored via `.gitignore` (don’t commit it).
-- No auth/validation/error pages yet — consider adding middleware + flash messages as next steps.
 
 
 ## Still in devloping stage 
