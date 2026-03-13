@@ -1,0 +1,49 @@
+<% layout("layouts/boilerplate") -%>
+
+<div class="listing-form">
+  <div class="listing-form__card">
+    <h3 class="mb-4">Add new place</h3>
+
+    <form action="/listing" method="post" class="listing-form__form">
+      <div class="mb-3">
+        <label class="form-label" for="listing-title">Title</label>
+        <input class="form-control" id="listing-title" type="text" placeholder="Enter title" name="title" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="listing-description">Description</label>
+        <textarea class="form-control" id="listing-description" placeholder="Enter description" name="description" rows="4"
+          required></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="listing-image">Image URL</label>
+        <input class="form-control" id="listing-image" type="url" placeholder="https://..." name="image[url]" required>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-12 col-md-4">
+          <label class="form-label" for="listing-price">Price (per night)</label>
+          <input class="form-control" id="listing-price" type="number" min="0" step="1" placeholder="Enter price"
+            name="price" required>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label class="form-label" for="listing-location">Location</label>
+          <input class="form-control" id="listing-location" type="text" placeholder="Enter location" name="location"
+            required>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label class="form-label" for="listing-country">Country</label>
+          <input class="form-control" id="listing-country" type="text" placeholder="Enter country" name="country" required>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 mt-4">
+        <button class="btn btn-primary" type="submit">Add</button>
+        <a class="btn btn-outline-secondary" href="/listing">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>

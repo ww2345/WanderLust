@@ -1,0 +1,19 @@
+<% layout("layouts/boilerplate") -%>
+
+<div class="listing-show">
+  <h2 class="mb-3"><%= reqData.title %></h2>
+
+  <img class="listing-show__image mb-3" src="<%= reqData.image.url %>" alt="<%= reqData.title %>" />
+
+  <p class="listing-show__desc"><%= reqData.description %></p>
+  <p class="mb-1"><span class="text-muted">Location:</span> <%= reqData.location %></p>
+  <p class="mb-1"><span class="text-muted">Price:</span> &#8377;<%= reqData.price.toLocaleString("en-IN") %></p>
+  <p class="mb-3"><span class="text-muted">Country:</span> <%= reqData.country %></p>
+
+  <div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-outline-secondary" href="/listing/<%= reqData._id %>/edit">Edit</a>
+    <form action="/listing/<%= reqData._id %>?_method=DELETE" method="post">
+      <button class="btn btn-danger" type="submit">Delete</button>
+    </form>
+  </div>
+</div>
