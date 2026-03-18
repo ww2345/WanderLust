@@ -4,6 +4,8 @@ const Listing = require("./models/listing");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
+const wrapAsync = require("./utils/wrapAsync");
+const ExpressError = require("./utils/expressError");
 
 const app = express();
 const port = 3000;
@@ -54,7 +56,8 @@ app.get("/listing/:id", async (req, res) => {
   res.render("listing/show.ejs", { reqData });
 });
 
-app.post("/listing", async (req, res) => {
+app.post("/listing", wrapAsync(async (req, res) => {
+
   let { title, description, price, country, location, image } = req.body;
 
   const listingData = {
@@ -72,7 +75,10 @@ app.post("/listing", async (req, res) => {
   const newListing = await Listing.create(listingData);
 
   res.redirect(`/listing/${newListing._id}`);
-});
+
+
+
+}));
 
 
 app.get("/listing/:id/edit", async (req, res) => {
@@ -99,3 +105,12 @@ app.delete("/listing/:id", async (req, res) => {
   await Listing.findByIdAndDelete(id);
   res.redirect("/listing");
 });
+
+app.use((req, res, next) => {
+  next(new ExpressError(404, "Page not found"));
+});
+
+app.use((err, req, res, next) => {
+  const { status = 500, message = "Something went wrong" } = err;
+  res.status(status).send(message);
+}); 
