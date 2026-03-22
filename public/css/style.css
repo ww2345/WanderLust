@@ -84,6 +84,24 @@ body{
   line-height: 1.6;
 }
 
+/* Reviews */
+.review-card{
+  border: 1px solid var(--wl-border);
+  border-radius: var(--wl-radius);
+}
+
+.review-rating .btn{
+  border-radius: 10px;
+}
+
+.review-stars i{
+  margin-right: 2px;
+}
+
+.review-section .list-group-item{
+  border-color: rgba(17, 24, 39, 0.08);
+}
+
 /* Create listing form */
 .listing-form{
   max-width: 860px;

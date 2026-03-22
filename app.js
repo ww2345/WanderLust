@@ -7,11 +7,13 @@ const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const wrapAsync = require("./utils/wrapAsync");
 const ExpressError = require("./utils/expressError");
+const { reviewSchema } = require("./Schema");
 
 const app = express();
 const port = 3000;
 
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(methodOverride("_method"));
 app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
@@ -35,6 +37,17 @@ app.listen(port, () => {
   console.log(`listning on port ${port}`);
 });
 
+// validation (server side for db )
+const validationReview = (req, res, next) => {
+  const { error } = reviewSchema.validate(req.body);
+  if (error) {
+    let errMsg = error.details.map((el) => el.message).join(",");
+    throw new ExpressError("400", errMsg);
+  } else {
+    next();
+  }
+};
+
 app.get("/", (req, res) => {
   res.send("root is working");
 });
@@ -52,7 +65,7 @@ app.get("/listing/new", (req, res) => {
 // show specific info for place 
 app.get("/listing/:id", async (req, res) => {
   let { id } = req.params;
-  let reqData = await Listing.findById(id);
+  let reqData = await Listing.findById(id).populate("reviews");
 
   res.render("listing/show.ejs", { reqData });
 });
@@ -107,13 +120,40 @@ app.delete("/listing/:id", async (req, res) => {
   res.redirect("/listing");
 });
 
+// for deleting reviews 
+app.delete("/listing/:id/review/:reviewId", wrapAsync(async (req, res) => {
+  let { id, reviewId } = req.params;
+
+  await Listing.findByIdAndUpdate(id, { $pull: { reviews: reviewId } })
+  await Review.findByIdAndDelete(reviewId);
+
+  res.redirect(`/listing/${id}`);
+}));
 //post for review 
-app.post("/listing/:id/review", wrapAsync(async (req, res) => {
+app.post("/listing/:id/review", validationReview, wrapAsync(async (req, res) => {
   const { id } = req.params;
   const listing = await Listing.findById(id);
   if (!listing) throw new ExpressError(404, "Listing not found");
 
-  const newReview = new Review(req.body.review);
+  const reviewData = (req.body && req.body.review) ? req.body.review : req.body;
+  if (!reviewData || typeof reviewData !== "object") {
+    throw new ExpressError(400, "Missing review data");
+  }
+
+  const rating = reviewData.rating !== undefined && reviewData.rating !== null ? Number(reviewData.rating) : null;
+  const comment = typeof reviewData.comment === "string" ? reviewData.comment.trim() : "";
+
+  const hasRating = Number.isFinite(rating);
+  const hasComment = comment.length > 0;
+
+  if (!hasRating && !hasComment) {
+    throw new ExpressError(400, "Review cannot be empty");
+  }
+  if (hasRating && (rating < 1 || rating > 5)) {
+    throw new ExpressError(400, "Rating must be between 1 and 5");
+  }
+
+  const newReview = new Review({ rating: hasRating ? rating : undefined, comment: hasComment ? comment : undefined });
   await newReview.save();
 
   listing.reviews.push(newReview._id);

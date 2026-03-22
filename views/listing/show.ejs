@@ -28,33 +28,95 @@
 
     <hr class="my-4" />
 
-    <div class="listing-form">
-      <div class="listing-form__card">
-        <h4 class="mb-3">Leave a Review</h4>
+    <div class="review-section row g-4 align-items-start">
+      <div class="col-12 col-lg-5">
+        <div class="card review-card shadow-sm">
+          <div class="card-body">
+            <h4 class="card-title mb-3">Leave a review</h4>
 
-	        <form class="needs-validation" action="/listing/<%= reqData._id %>/review" method="post" novalidate>
-	          <div class="mb-3">
-	            <label class="form-label" for="review-rating">Rating</label>
-	            <select class="form-select" id="review-rating" name="review[rating]" required>
-	              <option value="" selected disabled>Select rating</option>
-	              <option value="5">5 - Excellent</option>
-	              <option value="4">4 - Very good</option>
-	              <option value="3">3 - Good</option>
-              <option value="2">2 - Fair</option>
-              <option value="1">1 - Poor</option>
-            </select>
-            <div class="invalid-feedback">Please select a rating.</div>
+            <form class="needs-validation" action="/listing/<%= reqData._id %>/review" method="post" novalidate>
+              <div class="mb-3">
+                <label class="form-label d-block mb-2">Rating</label>
+                <div class="btn-group review-rating" role="group" aria-label="Rating">
+                  <input class="form-check-input btn-check" type="radio" name="review[rating]" id="rating-5" value="5"
+                    required />
+                  <label class="btn btn-outline-warning" for="rating-5">5 <i class="fa-solid fa-star"></i></label>
+
+                  <input class="form-check-input btn-check" type="radio" name="review[rating]" id="rating-4" value="4"
+                    required />
+                  <label class="btn btn-outline-warning" for="rating-4">4 <i class="fa-solid fa-star"></i></label>
+
+                  <input class="form-check-input btn-check" type="radio" name="review[rating]" id="rating-3" value="3"
+                    required />
+                  <label class="btn btn-outline-warning" for="rating-3">3 <i class="fa-solid fa-star"></i></label>
+
+                  <input class="form-check-input btn-check" type="radio" name="review[rating]" id="rating-2" value="2"
+                    required />
+                  <label class="btn btn-outline-warning" for="rating-2">2 <i class="fa-solid fa-star"></i></label>
+
+                  <input class="form-check-input btn-check" type="radio" name="review[rating]" id="rating-1" value="1"
+                    required />
+                  <label class="btn btn-outline-warning" for="rating-1">1 <i class="fa-solid fa-star"></i></label>
+                </div>
+                <div class="invalid-feedback">Please choose a rating.</div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label" for="review-body">Comment</label>
+                <textarea class="form-control" id="review-body" name="review[comment]" rows="4"
+                  placeholder="Share your experience..." required></textarea>
+                <div class="invalid-feedback">Please write a comment.</div>
+              </div>
+
+              <button class="btn btn-primary w-100" type="submit">Submit review</button>
+            </form>
           </div>
+        </div>
+      </div>
 
-	          <div class="mb-3">
-	            <label class="form-label" for="review-body">Review</label>
-	            <textarea class="form-control" id="review-body" name="review[comment]" rows="4" placeholder="Write your review..."
-	              required></textarea>
-	            <div class="invalid-feedback">Please write a review.</div>
-	          </div>
+      <div class="col-12 col-lg-7">
+        <div class="card review-card shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+              <h4 class="card-title mb-0">Reviews</h4>
+              <span class="badge text-bg-light border">
+                <%= (reqData.reviews && reqData.reviews.length) ? reqData.reviews.length : 0 %>
+              </span>
+            </div>
 
-	          <button class="btn btn-primary" type="submit">Submit</button>
-	        </form>
+            <% if (reqData.reviews && reqData.reviews.length) { %>
+              <div class="list-group list-group-flush">
+                <% for (let review of reqData.reviews) { %>
+                  <div class="list-group-item px-0">
+                    <div class="d-flex align-items-start justify-content-between gap-3">
+                      <div class="review-stars text-warning">
+                        <% for (let i=0; i < (review.rating || 0); i++) { %>
+                          <i class="fa-solid fa-star"></i>
+                          <% } %>
+                            <% for (let i=(review.rating || 0); i < 5; i++) { %>
+                              <i class="fa-regular fa-star"></i>
+                              <% } %>
+                      </div>
+                      <div class="text-muted small ms-auto">
+                        <%= review.createdAt ? new Date(review.createdAt).toLocaleDateString("en-IN") : "" %>
+                      </div>
+                    </div>
+                    <p class="mb-0 mt-2 text-secondary">
+                      <%= review.comment %>
+                    </p>
+                    <form method="post" action="/listing/<%=reqData._id%>/review/<%=review._id%>?_method=delete"><button
+                        class=" btn
+                      btn-dark btn-sm mt-2 mb-2">Delete</button></form>
+                  </div>
+                  <% } %>
+              </div>
+              <% } else { %>
+                <div class="alert alert-light border mb-0" role="alert">
+                  No reviews yet. Be the first one to comment.
+                </div>
+                <% } %>
+          </div>
+        </div>
       </div>
     </div>
   </div>
