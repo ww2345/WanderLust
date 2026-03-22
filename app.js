@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const Listing = require("./models/listing");
+const Review = require("./models/review");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
@@ -105,6 +106,21 @@ app.delete("/listing/:id", async (req, res) => {
   await Listing.findByIdAndDelete(id);
   res.redirect("/listing");
 });
+
+//post for review 
+app.post("/listing/:id/review", wrapAsync(async (req, res) => {
+  const { id } = req.params;
+  const listing = await Listing.findById(id);
+  if (!listing) throw new ExpressError(404, "Listing not found");
+
+  const newReview = new Review(req.body.review);
+  await newReview.save();
+
+  listing.reviews.push(newReview._id);
+  await listing.save();
+
+  res.redirect(`/listing/${id}`);
+}));
 
 app.use((req, res, next) => {
   next(new ExpressError(404, "Page not found"));

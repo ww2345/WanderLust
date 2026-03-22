@@ -1,19 +1,60 @@
 <% layout("layouts/boilerplate") -%>
 
-<div class="listing-show">
-  <h2 class="mb-3"><%= reqData.title %></h2>
+  <div class="listing-show">
+    <h2 class="mb-3">
+      <%= reqData.title %>
+    </h2>
 
-  <img class="listing-show__image mb-3" src="<%= reqData.image.url %>" alt="<%= reqData.title %>" />
+    <img class="listing-show__image mb-3" src="<%= reqData.image.url %>" alt="<%= reqData.title %>" />
 
-  <p class="listing-show__desc"><%= reqData.description %></p>
-  <p class="mb-1"><span class="text-muted">Location:</span> <%= reqData.location %></p>
-  <p class="mb-1"><span class="text-muted">Price:</span> &#8377;<%= reqData.price.toLocaleString("en-IN") %></p>
-  <p class="mb-3"><span class="text-muted">Country:</span> <%= reqData.country %></p>
+    <p class="listing-show__desc">
+      <%= reqData.description %>
+    </p>
+    <p class="mb-1"><span class="text-muted">Location:</span>
+      <%= reqData.location %>
+    </p>
+    <p class="mb-1"><span class="text-muted">Price:</span> &#8377;<%= reqData.price.toLocaleString("en-IN") %>
+    </p>
+    <p class="mb-3"><span class="text-muted">Country:</span>
+      <%= reqData.country %>
+    </p>
 
-  <div class="d-flex flex-wrap gap-2">
-    <a class="btn btn-outline-secondary" href="/listing/<%= reqData._id %>/edit">Edit</a>
-    <form action="/listing/<%= reqData._id %>?_method=DELETE" method="post">
-      <button class="btn btn-danger" type="submit">Delete</button>
-    </form>
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-outline-secondary" href="/listing/<%= reqData._id %>/edit">Edit</a>
+      <form action="/listing/<%= reqData._id %>?_method=DELETE" method="post">
+        <button class="btn btn-danger" type="submit">Delete</button>
+      </form>
+    </div>
+
+    <hr class="my-4" />
+
+    <div class="listing-form">
+      <div class="listing-form__card">
+        <h4 class="mb-3">Leave a Review</h4>
+
+	        <form class="needs-validation" action="/listing/<%= reqData._id %>/review" method="post" novalidate>
+	          <div class="mb-3">
+	            <label class="form-label" for="review-rating">Rating</label>
+	            <select class="form-select" id="review-rating" name="review[rating]" required>
+	              <option value="" selected disabled>Select rating</option>
+	              <option value="5">5 - Excellent</option>
+	              <option value="4">4 - Very good</option>
+	              <option value="3">3 - Good</option>
+              <option value="2">2 - Fair</option>
+              <option value="1">1 - Poor</option>
+            </select>
+            <div class="invalid-feedback">Please select a rating.</div>
+          </div>
+
+	          <div class="mb-3">
+	            <label class="form-label" for="review-body">Review</label>
+	            <textarea class="form-control" id="review-body" name="review[comment]" rows="4" placeholder="Write your review..."
+	              required></textarea>
+	            <div class="invalid-feedback">Please write a review.</div>
+	          </div>
+
+	          <button class="btn btn-primary" type="submit">Submit</button>
+	        </form>
+      </div>
+    </div>
   </div>
-</div>
