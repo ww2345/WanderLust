@@ -1,7 +1,7 @@
 const express = require("express");
 const Listing = require("../models/listing");
 const wrapAsync = require("../utils/wrapAsync");
-
+const {isLoggedIn} = require("../middleware");
 const router = express.Router();
 
 router.get("/", async (req, res) => {
@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
   res.render("listing/index.ejs", { allListing });
 });
 
-router.get("/new", (req, res) => {
+router.get("/new",isLoggedIn, (req, res) => {
   res.render("listing/new.ejs");
 });
 
@@ -46,7 +46,7 @@ router.post(
   }),
 );
 
-router.get("/:id/edit", async (req, res) => {
+router.get("/:id/edit",isLoggedIn, async (req, res) => {
   const { id } = req.params;
   const data = await Listing.findById(id);
   if (!data) {
@@ -56,7 +56,7 @@ router.get("/:id/edit", async (req, res) => {
   res.render("listing/edit.ejs", { data });
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id",isLoggedIn, async (req, res) => {
   const { id } = req.params;
   const { title, description, price, country, location, image } = req.body;
 
@@ -70,7 +70,7 @@ router.put("/:id", async (req, res) => {
   res.redirect(`/listing/${id}`);
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id",isLoggedIn, async (req, res) => {
   const { id } = req.params;
   await Listing.findByIdAndDelete(id);
   req.flash("success", "Listing deleted successfully");

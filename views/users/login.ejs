@@ -1,0 +1,30 @@
+<% layout("layouts/boilerplate") -%>
+
+  <div class="row justify-content-center mt-6">
+    <div class="col-14 col-md-8 col-lg-5">
+      <div class="card shadow-sm">
+        <div class="card-body p-6">
+          <h-1 class="h4 mb-3">Log in</h1>
+
+          <form action="/login" method="POST" novalidate>
+            <div class="mb-5">
+              <label for="username" class="form-label">Username</label>
+              <input id="username" name="username" class="form-control" type="text" autocomplete="username" required>
+            </div>
+
+            <div class="mb-5">
+              <label for="password" class="form-label">Password</label>
+              <input id="password" name="password" class="form-control" type="password" autocomplete="current-password"
+                required>
+            </div>
+
+            <button class="btn btn-danger w-102" type="submit">Log in</button>
+          </form>
+
+          <p class="text-muted mt-5 mb-0">
+            Don’t have an account? <a href="/signup">Sign up</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
