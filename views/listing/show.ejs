@@ -38,43 +38,46 @@
             <div class="card review-card shadow-sm">
               <div class="card-body">
                 <h4 class="card-title mb-3">Leave a review</h4>
+                <% if(currUser) { %>
+                  <form class="needs-validation" action="/listing/<%= reqData._id %>/review" method="post" novalidate>
+                    <div class="mb-3">
+                      <label class="form-label d-block mb-2">Rating</label>
+                      <div class="btn-group review-rating" role="group" aria-label="Rating">
+                        <input class="form-check-input btn-check" type="radio" name="review[rating]" id="rating-5"
+                          value="5" required />
+                        <label class="btn btn-outline-warning" for="rating-5">5 <i class="fa-solid fa-star"></i></label>
 
-                <form class="needs-validation" action="/listing/<%= reqData._id %>/review" method="post" novalidate>
-                  <div class="mb-3">
-                    <label class="form-label d-block mb-2">Rating</label>
-                    <div class="btn-group review-rating" role="group" aria-label="Rating">
-                      <input class="form-check-input btn-check" type="radio" name="review[rating]" id="rating-5"
-                        value="5" required />
-                      <label class="btn btn-outline-warning" for="rating-5">5 <i class="fa-solid fa-star"></i></label>
+                        <input class="form-check-input btn-check" type="radio" name="review[rating]" id="rating-4"
+                          value="4" required />
+                        <label class="btn btn-outline-warning" for="rating-4">4 <i class="fa-solid fa-star"></i></label>
 
-                      <input class="form-check-input btn-check" type="radio" name="review[rating]" id="rating-4"
-                        value="4" required />
-                      <label class="btn btn-outline-warning" for="rating-4">4 <i class="fa-solid fa-star"></i></label>
+                        <input class="form-check-input btn-check" type="radio" name="review[rating]" id="rating-3"
+                          value="3" required />
+                        <label class="btn btn-outline-warning" for="rating-3">3 <i class="fa-solid fa-star"></i></label>
 
-                      <input class="form-check-input btn-check" type="radio" name="review[rating]" id="rating-3"
-                        value="3" required />
-                      <label class="btn btn-outline-warning" for="rating-3">3 <i class="fa-solid fa-star"></i></label>
+                        <input class="form-check-input btn-check" type="radio" name="review[rating]" id="rating-2"
+                          value="2" required />
+                        <label class="btn btn-outline-warning" for="rating-2">2 <i class="fa-solid fa-star"></i></label>
 
-                      <input class="form-check-input btn-check" type="radio" name="review[rating]" id="rating-2"
-                        value="2" required />
-                      <label class="btn btn-outline-warning" for="rating-2">2 <i class="fa-solid fa-star"></i></label>
-
-                      <input class="form-check-input btn-check" type="radio" name="review[rating]" id="rating-1"
-                        value="1" required />
-                      <label class="btn btn-outline-warning" for="rating-1">1 <i class="fa-solid fa-star"></i></label>
+                        <input class="form-check-input btn-check" type="radio" name="review[rating]" id="rating-1"
+                          value="1" required />
+                        <label class="btn btn-outline-warning" for="rating-1">1 <i class="fa-solid fa-star"></i></label>
+                      </div>
+                      <div class="invalid-feedback">Please choose a rating.</div>
                     </div>
-                    <div class="invalid-feedback">Please choose a rating.</div>
-                  </div>
 
-                  <div class="mb-3">
-                    <label class="form-label" for="review-body">Comment</label>
-                    <textarea class="form-control" id="review-body" name="review[comment]" rows="4"
-                      placeholder="Share your experience..." required></textarea>
-                    <div class="invalid-feedback">Please write a comment.</div>
-                  </div>
+                    <div class="mb-3">
+                      <label class="form-label" for="review-body">Comment</label>
+                      <textarea class="form-control" id="review-body" name="review[comment]" rows="4"
+                        placeholder="Share your experience..." required></textarea>
+                      <div class="invalid-feedback">Please write a comment.</div>
+                    </div>
 
-                  <button class="btn btn-primary w-100" type="submit">Submit review</button>
-                </form>
+                    <button class="btn btn-primary w-100" type="submit">Submit review</button>
+                  </form>
+                  <%} else {%>
+                    <h5>Please login first for adding review</h5>
+                    <% } %>
               </div>
             </div>
           </div>
@@ -94,13 +97,18 @@
                     <% for (let review of reqData.reviews) { %>
                       <div class="list-group-item px-0">
                         <div class="d-flex align-items-start justify-content-between gap-3">
-                          <div class="review-stars text-warning">
-                            <% for (let i=0; i < (review.rating || 0); i++) { %>
-                              <i class="fa-solid fa-star"></i>
-                              <% } %>
-                                <% for (let i=(review.rating || 0); i < 5; i++) { %>
-                                  <i class="fa-regular fa-star"></i>
-                                  <% } %>
+                          <div>
+                            <div class="fw-semibold mb-1">
+                              @<%= review.author ? review.author.username : "Unknown user" %>
+                            </div>
+                            <div class="review-stars text-warning">
+                              <% for (let i=0; i < (review.rating || 0); i++) { %>
+                                <i class="fa-solid fa-star"></i>
+                                <% } %>
+                                  <% for (let i=(review.rating || 0); i < 5; i++) { %>
+                                    <i class="fa-regular fa-star"></i>
+                                    <% } %>
+                            </div>
                           </div>
                           <div class="text-muted small ms-auto">
                             <%= review.createdAt ? new Date(review.createdAt).toLocaleDateString("en-IN") : "" %>

@@ -1,4 +1,7 @@
 const Listing = require("./models/listing");
+const ExpressError = require("./utils/expressError");
+const { reviewSchema } = require("./Schema");
+const Review = require("./models/review");
 
 module.exports.isLoggedIn = (req, res, next) => {
   if (!req.isAuthenticated()) {
@@ -27,4 +30,25 @@ module.exports.isOwner = async (req, res, next) => {
     return res.redirect(`/listing/${id}`);
   }
   next();
-}
+};
+
+module.exports.validationReview = (req, res, next) => {
+  const { error } = reviewSchema.validate(req.body);
+  if (error) {
+    const errMsg = error.details.map((el) => el.message).join(",");
+    throw new ExpressError(400, errMsg);
+  }
+  next();
+};
+
+
+
+module.exports.isAuthor = async (req, res, next) => {
+  const { id, reviewId } = req.params;
+  const review = await Review.findById(reviewId);
+  if (!review.author._id.equals(res.locals.currUser._id)) {
+    req.flash("error", "You are not the author of this comment ");
+    return res.redirect(`/listing/${id}`);
+  }
+  next();
+};

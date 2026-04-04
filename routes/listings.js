@@ -4,82 +4,25 @@ const wrapAsync = require("../utils/wrapAsync");
 const { isLoggedIn } = require("../middleware");
 const router = express.Router();
 const { isOwner } = require("../middleware");
+const listingcontroller = require("../controllers/listing.js");
 
-router.get("/", async (req, res) => {
-  const allListing = await Listing.find({});
-  res.render("listing/index.ejs", { allListing });
-});
 
-router.get("/new", isLoggedIn, (req, res) => {
-  res.render("listing/new.ejs");
-});
+router.get("/", wrapAsync(listingcontroller.index));
+
+router.get("/new", isLoggedIn, listingcontroller.renderNewForm);
 
 //show route 
-router.get("/:id", async (req, res) => {
-  const { id } = req.params;
-  const reqData = await Listing.findById(id).populate("reviews").populate("owner");
-  if (!reqData) {
-    req.flash("error", "Listing not found");
-    return res.redirect("/listing");
-  }
-  res.render("listing/show.ejs", { reqData });
-});
+router.get("/:id", wrapAsync(listingcontroller.showListing));
 // new listing
 router.post(
   "/",
-  wrapAsync(async (req, res) => {
-    const { title, description, price, country, location, image } = req.body;
-
-    const listingData = {
-      title,
-      description,
-      price,
-      country,
-      location,
-      owner: req.user._id,
-    };
-
-    if (image && (image.url || image.filename)) {
-      listingData.image = image;
-    }
-
-
-
-    const newListing = await Listing.create(listingData);
-    req.flash("success", "Listing created successfully");
-    res.redirect(`/listing/${newListing._id}`);
-  }),
+  wrapAsync(listingcontroller.createListing),
 );
 
-router.get("/:id/edit", isLoggedIn, async (req, res) => {
-  const { id } = req.params;
-  const data = await Listing.findById(id);
-  if (!data) {
-    req.flash("error", "Listing not found");
-    return res.redirect("/listing");
-  }
-  res.render("listing/edit.ejs", { data });
-});
+router.get("/:id/edit", isLoggedIn, wrapAsync(listingcontroller.editRenderForm));
 // update route 
-router.put("/:id", isLoggedIn, isOwner, async (req, res) => {
-  const { id } = req.params;
-  const { title, description, price, country, location, image } = req.body;
+router.put("/:id", isLoggedIn, isOwner, wrapAsync(listingcontroller.updateListing));
 
-  const updateData = { title, description, price, country, location };
-  if (image && (image.url || image.filename)) {
-    updateData.image = image;
-  }
-
-  await Listing.findByIdAndUpdate(id, updateData, { runValidators: true });
-  req.flash("success", "Listing updated successfully");
-  res.redirect(`/listing/${id}`);
-});
-
-router.delete("/:id", isLoggedIn, isOwner, async (req, res) => {
-  const { id } = req.params;
-  await Listing.findByIdAndDelete(id);
-  req.flash("success", "Listing deleted successfully");
-  res.redirect("/listing");
-});
+router.delete("/:id", isLoggedIn, isOwner, wrapAsync(listingcontroller.destoryListing));
 
 module.exports = router;
