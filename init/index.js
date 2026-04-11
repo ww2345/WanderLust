@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Initdata = require("./data.js");
 const Listing = require("../models/listing.js");
 const Review = require("../models/review.js");
+const { resolveListingCategory } = require("../utils/listingCategories");
 main()
   .then(async () => {
     console.log("connected successfull to db ");
@@ -22,6 +23,7 @@ const initDB = async () => {
   await Review.deleteMany({});
   const seededListings = Initdata.data.map((obj) => ({
     ...obj,
+    category: obj.category || resolveListingCategory(obj),
     owner: "69cce8016efbc4710b95377d",
   }));
   await Listing.insertMany(seededListings);

@@ -1,23 +1,73 @@
 <% layout("layouts/boilerplate") -%>
 
-  <h3>All listings</h3>
+  <section class="listing-hero">
+    <div>
+      <p class="listing-hero__eyebrow">Browse by vibe</p>
+      <h3 class="listing-hero__title">
+        <%= activeCategory === "all" ? "Find your next stay" : `${activeFilter.label} escapes` %>
+      </h3>
+      <p class="listing-hero__copy">
+        <% if (searchQuery) { %>
+          Showing matches for "<%= searchQuery %>" across stays, cities, and countries.
+        <% } else { %>
+          Switch between mountain cabins, beach homes, city pads, and more with quick filters.
+        <% } %>
+      </p>
+    </div>
+  </section>
+
+  <div class="listing-filters" aria-label="Listing categories">
+    <% for (let filter of filters) { %>
+      <% const filterHref = filter.slug === "all"
+        ? (searchQuery ? `/listing?q=${encodeURIComponent(searchQuery)}` : "/listing")
+        : `/listing?category=${filter.slug}${searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : ""}`; %>
+      <a
+        class="listing-filter <%= activeCategory === filter.slug ? 'listing-filter--active' : '' %>"
+        href="<%= filterHref %>">
+        <i class="<%= filter.icon %>"></i>
+        <span><%= filter.label %></span>
+      </a>
+    <% } %>
+  </div>
 
   <div class="row g-4 listing-grid">
-    <% for (let listing of allListing) { %>
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100">
-          <img src="<%= listing.image && listing.image.url ? listing.image.url : listing.image %>" class="card-img-top" alt="<%= listing.title %>">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">
-              <%= listing.title %>
-            </h5>
-            <p class="card-text">
-              <%= listing.description %>
-            </p>
-            <p class="mt-auto mb-2">Price: &#8377; <%= listing.price.toLocaleString("en-IN") %> /night</p>
-            <a href="/listing/<%= listing._id %>" class="btn btn-primary">Explore More</a>
+    <% if (allListing.length) { %>
+      <% for (let listing of allListing) { %>
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100">
+            <img src="<%= listing.image && listing.image.url ? listing.image.url : listing.image %>" class="card-img-top" alt="<%= listing.title %>">
+            <div class="card-body d-flex flex-column">
+              <% if (listing.categoryMeta) { %>
+                <p class="listing-grid__badge">
+                  <i class="<%= listing.categoryMeta.icon %>"></i>
+                  <span><%= listing.categoryMeta.label %></span>
+                </p>
+              <% } %>
+              <h5 class="card-title">
+                <%= listing.title %>
+              </h5>
+              <p class="card-text">
+                <%= listing.description %>
+              </p>
+              <p class="mt-auto mb-2">Price: &#8377; <%= listing.price.toLocaleString("en-IN") %> /night</p>
+              <a href="/listing/<%= listing._id %>" class="btn btn-primary">Explore More</a>
+            </div>
           </div>
         </div>
-      </div>
       <% } %>
+    <% } else { %>
+      <div class="col-12">
+        <div class="listing-empty">
+          <i class="<%= activeFilter.icon %>"></i>
+          <h4 class="mb-2">
+            <% if (searchQuery) { %>
+              No stays found for "<%= searchQuery %>"
+            <% } else { %>
+              No listings in <%= activeFilter.label %> yet
+            <% } %>
+          </h4>
+          <p class="mb-0">Try a different search, switch filters, or add a new stay.</p>
+        </div>
+      </div>
+    <% } %>
   </div>

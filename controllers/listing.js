@@ -1,12 +1,65 @@
 const Listing = require("../models/listing");
+const {
+  LISTING_CATEGORIES,
+  FORM_CATEGORIES,
+  normalizeCategory,
+  getCategoryMeta,
+  resolveListingCategory,
+  buildCategoryQuery,
+} = require("../utils/listingCategories");
+
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 module.exports.index = async (req, res) => {
-  const allListing = await Listing.find({});
-  res.render("listing/index.ejs", { allListing });
+  const activeCategory = normalizeCategory(req.query.category);
+  const searchQuery = typeof req.query.q === "string" ? req.query.q.trim() : "";
+  const searchConditions = [];
+  const categoryQuery = buildCategoryQuery(activeCategory);
+
+  if (Object.keys(categoryQuery).length) {
+    searchConditions.push(categoryQuery);
+  }
+
+  if (searchQuery) {
+    const keywordRegex = new RegExp(escapeRegex(searchQuery), "i");
+    searchConditions.push({
+      $or: [
+        { title: keywordRegex },
+        { description: keywordRegex },
+        { location: keywordRegex },
+        { country: keywordRegex },
+        { category: keywordRegex },
+      ],
+    });
+  }
+
+  const mongoQuery =
+    searchConditions.length === 0
+      ? {}
+      : searchConditions.length === 1
+        ? searchConditions[0]
+        : { $and: searchConditions };
+
+  const allListing = await Listing.find(mongoQuery).lean();
+  const listingCards = allListing.map((listing) => {
+    const categorySlug = resolveListingCategory(listing);
+    return {
+      ...listing,
+      categoryMeta: categorySlug ? getCategoryMeta(categorySlug) : null,
+    };
+  });
+
+  res.render("listing/index.ejs", {
+    allListing: listingCards,
+    filters: LISTING_CATEGORIES,
+    activeCategory,
+    activeFilter: getCategoryMeta(activeCategory),
+    searchQuery,
+  });
 };
 
 module.exports.renderNewForm = (req, res) => {
-  res.render("listing/new.ejs");
+  res.render("listing/new.ejs", { categories: FORM_CATEGORIES });
 };
 
 module.exports.showListing = async (req, res) => {
@@ -20,8 +73,9 @@ module.exports.showListing = async (req, res) => {
 };
 
 module.exports.createListing = async (req, res) => {
-  const { title, description, price, country, location, image } = req.body;
+  const { title, description, price, country, location, image, category } = req.body;
   const imageUrl = typeof image === "string" ? image.trim() : "";
+  const normalizedCategory = normalizeCategory(category);
 
   const listingData = {
     title,
@@ -29,6 +83,10 @@ module.exports.createListing = async (req, res) => {
     price,
     country,
     location,
+    category:
+      normalizedCategory !== "all"
+        ? normalizedCategory
+        : resolveListingCategory({ title, description, location, country }),
     owner: req.user._id,
   };
 
@@ -56,15 +114,30 @@ module.exports.editRenderForm = async (req, res) => {
     req.flash("error", "Listing not found");
     return res.redirect("/listing");
   }
-  res.render("listing/edit.ejs", { data });
+  res.render("listing/edit.ejs", {
+    data,
+    categories: FORM_CATEGORIES,
+    selectedCategory: data.category || resolveListingCategory(data),
+  });
 };
 
 module.exports.updateListing = async (req, res) => {
   const { id } = req.params;
-  const { title, description, price, country, location, image } = req.body;
+  const { title, description, price, country, location, image, category } = req.body;
   const imageUrl = typeof image === "string" ? image.trim() : "";
+  const normalizedCategory = normalizeCategory(category);
 
-  const updateData = { title, description, price, country, location };
+  const updateData = {
+    title,
+    description,
+    price,
+    country,
+    location,
+    category:
+      normalizedCategory !== "all"
+        ? normalizedCategory
+        : resolveListingCategory({ title, description, location, country }),
+  };
   if (req.file) {
     updateData.image = {
       url: req.file.path,

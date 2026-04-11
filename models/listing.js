@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Review = require("./review");
+const { CATEGORY_SLUGS } = require("../utils/listingCategories");
 const Schema = mongoose.Schema;
 
 const DEFAULT_IMAGE_URL =
@@ -25,6 +26,10 @@ const listingSchema = new Schema({
   price: Number,
   location: String,
   country: String,
+  category: {
+    type: String,
+    enum: CATEGORY_SLUGS,
+  },
   reviews: [
     {
       type: Schema.Types.ObjectId,

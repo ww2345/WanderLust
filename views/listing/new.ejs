@@ -21,6 +21,17 @@
         </div>
 
         <div class="mb-3">
+          <label class="form-label" for="listing-category">Category</label>
+          <select class="form-select" id="listing-category" name="category" required>
+            <option value="" selected disabled>Select a category</option>
+            <% for (let category of categories) { %>
+              <option value="<%= category.slug %>"><%= category.label %></option>
+            <% } %>
+          </select>
+          <div class="invalid-feedback">Select a category</div>
+        </div>
+
+        <div class="mb-3">
           <label class="form-label" for="listing-image-url">Image URL</label>
           <input class="form-control" id="listing-image-url" type="url" placeholder="https://..." name="image">
         </div>

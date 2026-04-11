@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg sticky-top wl-navbar" data-bs-theme="light">
   <div class="container">
-    <a class="navbar-brand wl-navbar__brand" href="/">
+    <a class="navbar-brand wl-navbar__brand" href="/listing">
       <span class="wl-navbar__brand-icon">
         <i class="fa-regular fa-compass"></i>
       </span>
@@ -17,9 +17,6 @@
     <div class="collapse navbar-collapse wl-navbar__collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-3 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link wl-navbar__link <%= currPath === '/' ? 'wl-navbar__link--active' : '' %>" href="/">Home</a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link wl-navbar__link <%= currPath.startsWith('/listing') && currPath !== '/listing/new' ? 'wl-navbar__link--active' : '' %>"
             href="/listing">Explore stays</a>
         </li>
@@ -34,6 +31,20 @@
         </li>
       </ul>
 
+      <form class="wl-navbar__search" action="/listing" method="get" role="search">
+        <% if (typeof activeCategory !== "undefined" && activeCategory !== "all" && currPath === "/listing") { %>
+          <input type="hidden" name="category" value="<%= activeCategory %>">
+        <% } %>
+        <label class="visually-hidden" for="navbar-search">Search stays</label>
+        <input class="wl-navbar__search-input" id="navbar-search" type="search" name="q"
+          placeholder="Search stays, cities, countries"
+          value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>">
+        <button class="wl-navbar__search-button" type="submit">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span>Search</span>
+        </button>
+      </form>
+
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
         <% if (!currUser) { %>
           <li class="nav-item">
@@ -44,17 +55,17 @@
             <a class="nav-link wl-navbar__auth-link wl-navbar__auth-link--primary <%= currPath === '/signup' ? 'wl-navbar__auth-link--active' : '' %>"
               href="/signup">Signup</a>
           </li>
-        <% } else { %>
-          <li class="nav-item">
-            <span class="wl-navbar__user-pill">
-              <i class="fa-regular fa-circle-user"></i>
-              <%= currUser.username %>
-            </span>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link wl-navbar__auth-link wl-navbar__auth-link--primary" href="/logout">Logout</a>
-          </li>
-        <% } %>
+          <% } else { %>
+            <li class="nav-item">
+              <span class="wl-navbar__user-pill">
+                <i class="fa-regular fa-circle-user"></i>
+                <%= currUser.username %>
+              </span>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link wl-navbar__auth-link wl-navbar__auth-link--primary" href="/logout">Logout</a>
+            </li>
+            <% } %>
       </ul>
     </div>
   </div>
