@@ -21,6 +21,7 @@ module.exports.showListing = async (req, res) => {
 
 module.exports.createListing = async (req, res) => {
   const { title, description, price, country, location, image } = req.body;
+  const imageUrl = typeof image === "string" ? image.trim() : "";
 
   const listingData = {
     title,
@@ -31,11 +32,17 @@ module.exports.createListing = async (req, res) => {
     owner: req.user._id,
   };
 
-  if (image && (image.url || image.filename)) {
-    listingData.image = image;
+  if (req.file) {
+    listingData.image = {
+      url: req.file.path,
+      filename: req.file.filename,
+    };
+  } else if (imageUrl) {
+    listingData.image = {
+      url: imageUrl,
+      filename: "external-link",
+    };
   }
-
-
 
   const newListing = await Listing.create(listingData);
   req.flash("success", "Listing created successfully");
@@ -55,10 +62,19 @@ module.exports.editRenderForm = async (req, res) => {
 module.exports.updateListing = async (req, res) => {
   const { id } = req.params;
   const { title, description, price, country, location, image } = req.body;
+  const imageUrl = typeof image === "string" ? image.trim() : "";
 
   const updateData = { title, description, price, country, location };
-  if (image && (image.url || image.filename)) {
-    updateData.image = image;
+  if (req.file) {
+    updateData.image = {
+      url: req.file.path,
+      filename: req.file.filename,
+    };
+  } else if (imageUrl) {
+    updateData.image = {
+      url: imageUrl,
+      filename: "external-link",
+    };
   }
 
   await Listing.findByIdAndUpdate(id, updateData, { runValidators: true });
@@ -71,4 +87,4 @@ module.exports.destoryListing = async (req, res) => {
   await Listing.findByIdAndDelete(id);
   req.flash("success", "Listing deleted successfully");
   res.redirect("/listing");
-}; 
+};

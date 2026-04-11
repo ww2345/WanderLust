@@ -4,7 +4,7 @@
       <%= reqData.title %>
     </h2>
 
-    <img class="listing-show__image mb-3" src="<%= reqData.image.url %>" alt="<%= reqData.title %>" />
+    <img class="listing-show__image mb-3" src="<%= reqData.image && reqData.image.url ? reqData.image.url : reqData.image %>" alt="<%= reqData.title %>" />
 
     <p class="listing-show__desc">
       <b>Owned By </b>

@@ -4,7 +4,8 @@
     <div class="listing-form__card">
       <h3 class="mb-4">Add new place</h3>
 
-      <form action="/listing" method="post" class="listing-form__form  needs-validation" novalidate>
+      <form action="/listing" method="post" class="listing-form__form  needs-validation" novalidate
+        enctype="multipart/form-data">
         <div class="mb-3">
           <label class="form-label" for="listing-title">Title</label>
           <input class="form-control" id="listing-title" type="text" placeholder="Enter title" name="title" required>
@@ -20,11 +21,16 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label" for="listing-image">Image URL</label>
-          <input class="form-control" id="listing-image" type="url" placeholder="https://..." name="image[url]">
+          <label class="form-label" for="listing-image-url">Image URL</label>
+          <input class="form-control" id="listing-image-url" type="url" placeholder="https://..." name="image">
         </div>
 
-        <div class="row g-3">
+        <div class="mb-3">
+          <label class="form-label" for="listing-image-file">Upload Image </label>
+          <input class="form-control" id="listing-image-file" type="file" name="listing[image]" accept="image/*">
+        </div>
+
+        <div class=" row g-3">
           <div class="col-12 col-md-4">
             <label class="form-label" for="listing-price">Price (per night)</label>
             <input class="form-control" id="listing-price" type="text" min="0" step="1" placeholder="Enter price"
