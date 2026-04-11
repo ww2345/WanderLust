@@ -190,7 +190,8 @@ Defined in [`models/review.js`](/home/blackarch/Documents/DEVLOPMENT/Major_proje
 - `POST /listing` uses `req.user` but is not protected by `isLoggedIn`, so direct unauthenticated requests can fail.
 - Review creation and deletion are not protected by authentication or ownership checks.
 - There are no automated tests yet.
-- The root route is only a simple text response; the actual app experience starts at `/listing`
+- The root route is only a simple text response; the actual app experience starts at `/listing`.
+
 
 ## Future Improvements
 
