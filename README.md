@@ -222,7 +222,7 @@ node init/index.js
 node app.js
 ```
 
-Then visit `http://localhost:3000/listing`
+Then visit `http://localhost:3000/listing`.
 
 ## License
 
