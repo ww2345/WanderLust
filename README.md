@@ -1,20 +1,21 @@
 # WanderLust
 
-WanderLust is a full-stack travel listing web app inspired by Airbnb. Users can browse stays, sign up, log in, create their own listings, and leave reviews on listing pages.
+WanderLust is a full-stack travel listing app inspired by Airbnb-style browsing. It lets people explore stays, search by place or keyword, filter by category, sign up, log in, create their own listings, upload images, and leave reviews.
 
-The project is built with Node.js, Express, MongoDB, EJS, Passport.js, and Bootstrap. It uses server-rendered views and stores data in a local MongoDB database.
+The project is built with Node.js, Express, MongoDB, EJS, Passport, Bootstrap, and Cloudinary. It uses server-rendered pages, session-based authentication, and a local MongoDB database during development.
 
-## Features
+## What You Can Do
 
-- Browse all travel listings
-- View detailed pages for each listing
-- User signup, login, and logout
+- Browse all listings from the main `/listing` page
+- Search stays by title, description, location, country, or category
+- Filter listings by categories like mountain, arctic, beach, city, forest, castle, and desert
+- Open a listing details page with reviews and owner information
+- Sign up, log in, and log out with Passport authentication
 - Create new listings after logging in
-- Edit and delete listings as the listing owner
-- Add and delete reviews
-- Flash messages for user feedback
-- Session-based authentication with Passport
-- Sample listing data for local development
+- Edit or delete only the listings you own
+- Add reviews when logged in and delete only your own reviews
+- Upload listing images through Cloudinary or use an image URL
+- Seed the database with sample travel listings for local development
 
 ## Tech Stack
 
@@ -22,10 +23,17 @@ The project is built with Node.js, Express, MongoDB, EJS, Passport.js, and Boots
 - Express
 - MongoDB
 - Mongoose
-- EJS + `ejs-mate`
-- Passport.js + `passport-local`
+- EJS
+- `ejs-mate`
+- Passport.js
+- `passport-local`
 - `passport-local-mongoose`
+- `express-session`
+- `connect-flash`
 - Joi
+- Multer
+- Cloudinary
+- `multer-storage-cloudinary`
 - Bootstrap 5
 - Font Awesome
 
@@ -34,6 +42,7 @@ The project is built with Node.js, Express, MongoDB, EJS, Passport.js, and Boots
 ```text
 .
 ├── app.js
+├── cloudConfig.js
 ├── middleware.js
 ├── Schema.js
 ├── init/
@@ -51,8 +60,10 @@ The project is built with Node.js, Express, MongoDB, EJS, Passport.js, and Boots
 │   ├── reviews.js
 │   ├── root.js
 │   └── user.js
+├── uploads/
 ├── utils/
 │   ├── expressError.js
+│   ├── listingCategories.js
 │   └── wrapAsync.js
 └── views/
     ├── includes/
@@ -61,12 +72,13 @@ The project is built with Node.js, Express, MongoDB, EJS, Passport.js, and Boots
     └── users/
 ```
 
-## Local Setup
+## Getting Started
 
 ### Prerequisites
 
 - Node.js and npm
 - MongoDB running locally
+- A Cloudinary account if you want image uploads
 
 ### 1. Install dependencies
 
@@ -74,37 +86,43 @@ The project is built with Node.js, Express, MongoDB, EJS, Passport.js, and Boots
 npm install
 ```
 
-### 2. Start MongoDB
+### 2. Create a `.env` file
 
-This project connects to the following local database by default:
+Add your Cloudinary credentials:
+
+```env
+CLOUD_NAME=your_cloud_name
+CLOUD_API_KEY=your_cloud_api_key
+CLOUD_API_SECRET=your_cloud_api_secret
+```
+
+### 3. Start MongoDB
+
+This app connects to a local database at:
 
 ```text
 mongodb://127.0.0.1:27017/wanderlust
 ```
 
-Make sure your MongoDB server is running before starting the app.
-
-### 3. Optional: seed sample listings
+### 4. Seed sample data (optional)
 
 ```bash
 node init/index.js
 ```
 
-
-
-### 4. Start the server
+### 5. Start the app
 
 ```bash
 node app.js
 ```
 
-The app runs at:
+Open the app at:
 
 ```text
 http://localhost:3000
 ```
 
-The main listing interface is available at:
+The root route redirects to:
 
 ```text
 http://localhost:3000/listing
@@ -114,94 +132,98 @@ http://localhost:3000/listing
 
 ### Root
 
-- `GET /` - simple root check route
+- `GET /` redirects to `/listing`
 
 ### Auth
 
-- `GET /signup` - signup page
-- `POST /signup` - create a new user
-- `GET /login` - login page
-- `POST /login` - authenticate user
-- `GET /logout` - logout current user
+- `GET /signup` render the signup form
+- `POST /signup` register a new user
+- `GET /login` render the login form
+- `POST /login` authenticate a user
+- `GET /logout` log out the current user
 
 ### Listings
 
-- `GET /listing` - show all listings
-- `GET /listing/new` - new listing form
-- `POST /listing` - create listing
-- `GET /listing/:id` - show listing details
-- `GET /listing/:id/edit` - edit listing form
-- `PUT /listing/:id` - update listing
-- `DELETE /listing/:id` - delete listing
+- `GET /listing` show all listings
+- `GET /listing?category=beach` filter listings by category
+- `GET /listing?q=tokyo` search listings
+- `GET /listing?category=mountain&q=aspen` combine filter and search
+- `GET /listing/new` render the new listing form
+- `POST /listing` create a listing
+- `GET /listing/:id` show one listing
+- `GET /listing/:id/edit` render the edit form
+- `PUT /listing/:id` update a listing
+- `DELETE /listing/:id` delete a listing
 
 ### Reviews
 
-- `POST /listing/:id/review` - create review for a listing
-- `DELETE /listing/:id/review/:reviewId` - delete a review
+- `POST /listing/:id/review` create a review for a listing
+- `DELETE /listing/:id/review/:reviewId` delete a review
 
 ## Data Models
 
 ### User
 
-Defined in [`models/user.js`](/home/blackarch/Documents/DEVLOPMENT/Major_projects/models/user.js)
+The `User` model stores:
 
 - `email`
-- `username` and password fields managed by `passport-local-mongoose`
+- `username`
+- password fields managed by `passport-local-mongoose`
 
 ### Listing
 
-Defined in [`models/listing.js`](/home/blackarch/Documents/DEVLOPMENT/Major_projects/models/listing.js)
+The `Listing` model stores:
 
 - `title`
 - `description`
-- `image`
+- `image.url`
+- `image.filename`
 - `price`
 - `location`
 - `country`
+- `category`
 - `owner`
 - `reviews`
 
-Listings also delete their related reviews through a Mongoose post-delete hook.
+Listings also clean up their related reviews when a listing is deleted.
 
 ### Review
 
-Defined in [`models/review.js`](/home/blackarch/Documents/DEVLOPMENT/Major_projects/models/review.js)
+The `Review` model stores:
 
 - `comment`
 - `rating`
 - `createdAt`
+- `author`
 
-## Authentication and Authorization
+## A Quick Walkthrough
 
-- Passport local authentication is configured in [`app.js`](/home/blackarch/Documents/DEVLOPMENT/Major_projects/app.js).
-- Logged-in users can access the add-listing page.
-- Listing owners can edit and delete only their own listings.
-- Users are redirected back to the protected page they originally tried to access after logging in.
+- `app.js` wires together Express, MongoDB, sessions, flash messages, Passport, and the route files.
+- `controllers/listing.js` handles listing search, category filtering, create, edit, show, and delete actions.
+- `utils/listingCategories.js` keeps the filter categories and category-matching logic in one place.
+- `cloudConfig.js` connects Multer uploads to Cloudinary storage.
+- `middleware.js` protects routes, checks ownership, and handles redirect-after-login behavior.
+- `public/js/script.js` adds Bootstrap-style client-side form validation.
 
-## Validation
+## Interface Highlights
 
-- Review validation uses Joi in [`Schema.js`](/home/blackarch/Documents/DEVLOPMENT/Major_projects/Schema.js).
-- Client-side form validation is handled in [`public/js/script.js`](/home/blackarch/Documents/DEVLOPMENT/Major_projects/public/js/script.js).
+- The navbar includes a live search form that submits to the listings page.
+- The listings page includes category chips with Font Awesome icons.
+- Search and category filters work together, so users can narrow results in one flow.
+- New and edit listing forms support both image URLs and file uploads.
 
-## Current Limitations
+## Running The Project
 
-- The MongoDB connection string and session secret are hardcoded in [`app.js`](/home/blackarch/Documents/DEVLOPMENT/Major_projects/app.js).
-- The seed script depends on a hardcoded owner id.
-- `POST /listing` uses `req.user` but is not protected by `isLoggedIn`, so direct unauthenticated requests can fail.
-- Review creation and deletion are not protected by authentication or ownership checks.
-- There are no automated tests yet.
-- The root route is only a simple text response; the actual app experience starts at `/listing`.
+If you just want the shortest path:
 
+```bash
+npm install
+node init/index.js
+node app.js
+```
 
-## Future Improvements
-
-- Move secrets and database configuration to environment variables
-- Add authorization checks for review actions
-- Protect all write routes consistently
-- Add custom error pages
-- Add automated tests
-- Support image uploads instead of URL-only images
+Then visit `http://localhost:3000/listing`.
 
 ## License
 
-This project is currently shared for learning and portfolio use. 
+This project is shared for learning and portfolio use.
