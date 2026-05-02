@@ -226,4 +226,4 @@ Then visit `http://localhost:3000/listing`.
 
 ## License
 
-This project is shared for learning and portfolio use.
+This project is shared for learning and portfolio use
